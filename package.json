@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.17.0",
-    "csvtojson": "^1.1.9",
     "papaparse": "^4.3.6",
     "uuid": "^3.1.0"
   },
