@@ -1,0 +1,67 @@
+
+Output from js:
+
+
+/?onboardingId=2aeda077-4aa8-450e-bb7a-c10bf2309a9f
+Headers
+{ accept: 'text/plain',
+  'content-type': 'application/json',
+  host: 'sandbox.tradeshift.com',
+  'user-agent': 'DDMagicScript/1.0',
+  'accept-language': 'en-GB,en-US;q=0.8,en;q=0.5,da;q=0.3',
+  'x-tradeshift-remote-component-id': 'TradeshiftDD.DDManager.Main 1.0.0-848876f682f9f0ad966083b445c32907',
+  'x-tradeshift-remote-http-method': 'post',
+  'x-tradeshift-remote-service-key': 'provider',
+  'x-requested-with': 'XMLHttpRequest',
+  referer: 'https://sandbox.tradeshift.com/ts3/frame/1095761275',
+  cookie: 'TSAPPID=90769707; test=1; csrfToken=Ix9uAP_cOyS00PWcxT6wzF4cwQ37YoOL32pqRpRF1Cc=; JSESSIONID=B20B22D1DA2FFCFFA15BA69E8893FA69;',
+  dnt: '1',
+  connection: 'keep-alive',
+  'content-length': '420' }
+{ '{
+					"supplierEmail":"skw POsupplier@tradeshift.com",
+					"fundingRate":"22",
+					"settlementPeriod":"45",
+					"deleted":"false",
+					"status":"DRAFT",
+					"fromEmail":"no-reply",
+					"skipContractReview":"false",
+					"programIds":["23177f19-0ac8-4e66-b24c-5ce0e61f0eb1"],
+					"properties":{},
+					"supplierCompanyAccountId":"077642e5-7694-4449-9eaf-06be48dc4a91"
+	}': '' }
+
+
+
+From curl:
+
+
+/?onboardingId=5d286e6b-afec-4503-bfc4-78d10bfb2991
+Headers
+{ host: 'sandbox.tradeshift.com',
+  'user-agent': 'DDMagicScript/1.0',
+  accept: 'text/plain',
+  'accept-language': 'en-GB,en-US;q=0.8,en;q=0.5,da;q=0.3',
+  'content-type': 'application/json',
+  'x-tradeshift-remote-component-id': 'TradeshiftDD.DDManager.Main 1.0.0-848876f682f9f0ad966083b445c32907',
+  'x-tradeshift-remote-http-method': 'post',
+  'x-tradeshift-remote-service-key': 'provider',
+  'x-requested-with': 'XMLHttpRequest',
+  referer: 'https://sandbox.tradeshift.com/ts3/frame/1095761275',
+  cookie: 'TSAPPID=90769707; test=1; csrfToken=Ix9uAP_cOyS00PWcxT6wzF4cwQ37YoOL32pqRpRF1Cc=; JSESSIONID=B20B22D1DA2FFCFFA15BA69E8893FA69;',
+  dnt: '1',
+  connection: 'keep-alive',
+  'content-length': '383' }
+{ '{\n\t\t\t    
+					"deleted":false,\n\t\t\t\t\t\t\t
+					"fundingRate":22,\n\t\t\t\t\t\t\t
+					"settlementPeriod":45,\n\t\t\t\t\t\t\t
+					"status":"DRAFT",\n\t\t\t\t\t\t\t
+					"supplierCompanyAccountId":"077642e5-7694-4449-9eaf-06be48dc4a91",\n\t\t\t\t\t\t\t
+					"supplierEmail":"cle skwsupplier@tradeshift.com",\n\t\t\t\t\t\t\t
+					"fromEmail":"",\n\t\t\t\t\t\t\t
+					"properties":{},\n\t\t\t\t\t\t\t
+					"skipContractReview":false,\n\t\t\t\t\t\t\t
+					"programIds":["23177f19-0ac8-4e66-b24c-5ce0e61f0eb1"]\n\t\t
+}': '' }
+ 
