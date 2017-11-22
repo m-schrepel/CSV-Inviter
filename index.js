@@ -40,17 +40,24 @@ function parseCSV(args) {
     // File read properly, now we parse it
     const parsedCSV = Papa.parse(fileToRead, { header: true, skipEmptyLines: true });
     if (parsedCSV.errors.length === 0) {
-      return resolve(parsedCSV.data);
+      return resolve({ parsedCSV: parsedCSV.data, args });
     }
+    // For some reason Papa parse failed, so return those errors (always in an array)
     return reject(new Error(parsedCSV.errors.join(' ')));
   });
 }
 
+function createRequests(postParseObject) {
+  console.log(postParseObject);
+}
+
 // Step 1) Get command line arguments.
 getCommandLineArguments()
-  .then(args => parseCSV(args))
+  .then(args => args)
   // Step 2) Parse CSV.
-  .then(csv => console.log('csv', csv))
+  .then(args => parseCSV(args))
+  // Step 3) Create requests
+  .then(postParseObject => createRequests(postParseObject))
   .catch(e => console.error(e.message));
 
 // const InviteProcess = {
