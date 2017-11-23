@@ -13,18 +13,19 @@ const fs = require('fs');
 const axios = require('axios');
 const Papa = require('papaparse');
 const uuidv4 = require('uuid/v4');
+const Promise = require('bluebird');
 
-// Arguments should be in order index.js, *.csv, JSESSIONID, CSRF
+// Arguments should be in order index.js, *.csv, JsessionId, CSRF
 function getCommandLineArguments() {
   return new Promise((resolve, reject) => {
     if (!process.argv[2] || !process.argv[3] || !process.argv[4]) {
-      console.log('Usage: node index [fileName].csv Csrf SessionId');
-      return reject(new Error('The terminal input should look like: node index {fileName}.csv {SessionID} {CSRF token}'));
+      console.log('Usage: node index [fileName].csv Csrf sessionId');
+      return reject(new Error('The terminal input should look like: node index {fileName}.csv {sessionId} {CSRF token}'));
     }
     console.log(`Loading file ${process.argv[2]} with sessionId: ${process.argv[3]} and csrf token: ${process.argv[4]}`);
     return resolve({
       csv: process.argv[2],
-      sessionid: process.argv[3],
+      sessionId: process.argv[3],
       csrf: process.argv[4],
     });
   });
@@ -48,7 +49,80 @@ function parseCSV(args) {
 }
 
 function createRequests(postParseObject) {
-  console.log(postParseObject);
+  // parsedCSV is our data object to map into promises
+  const { parsedCSV, args } = postParseObject;
+
+  // Grab the sessionID and csrf tokens individually
+  const { sessionId, csrf } = args;
+
+  // This defines our endpoint with a generated UUID
+  const URL =
+    `https://sandbox.tradeshift.com/appRuntime/proxy/actions/manager/createandinvite?onboardingId=${uuidv4()}`;
+
+  // This is setup for our request
+  const requestConfig = {
+    headers: {
+      host: 'sandbox.tradeshift.com',
+      'User-Agent': 'DDMagicScript/1.0',
+      'Content-Type': 'application/json',
+      Accept: 'text/plain',
+      'accept-language': 'en-GB,en-US;q=0.8,en;q=0.5,da;q=0.3',
+      'X-Tradeshift-Remote-Component-ID': 'TradeshiftDD.DDManager.Main 1.0.0-848876f682f9f0ad966083b445c32907',
+      'X-Tradeshift-Remote-HTTP-Method': 'post',
+      'X-Tradeshift-Remote-Service-Key': 'provider',
+      'X-Requested-With': 'XMLHttpRequest',
+      Referer: 'https://sandbox.tradeshift.com/ts3/frame/1095761275',
+      Cookie: `TSAPPID=73715787; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
+      DNT: '1',
+      Connection: 'keep-alive',
+    },
+    method: 'post',
+    url: URL,
+    data: {
+      supplierEmail: 'skw+0518sw@tradeshift.com',
+      // fundingRate: '22',
+      // settlementPeriod: '45',
+      deleted: 'false',
+      status: 'DRAFT',
+      fromEmail: 'no-reply',
+      skipContractReview: 'false',
+      // programIds: [
+      // '23177f19-0ac8-4e66-b24c-5ce0e61f0eb1',
+      // ],
+      properties: {},
+      // supplierCompanyAccountId: 'cadea80b-2ace-5a97-82ff-4d03416ed854',
+    },
+  };
+
+  // Map over the CSV data to turn each object into an unresolved promise
+  const requestPromises = parsedCSV.map((data) => {
+    // For easier debugging we'll just keep this object as a loggable thing
+    const updatedConfigObject = Object.assign({}, requestConfig, {
+      data: Object.assign({}, requestConfig.data, {
+        fundingRate: data.fundingRate,
+        settlementPeriod: data.settlementPeriod,
+        programIds: [data.ProgramId],
+        supplierCompanyAccountId: data.SupplierUUID,
+      }),
+    });
+    return updatedConfigObject;
+  });
+
+  return Promise.map(requestPromises, obj => axios(obj).then(s => s).catch(e => e));
+}
+
+function reportSuccessAndCreateCSV(responseArray) {
+  const failed = [];
+  const succeeded = [];
+
+  responseArray.forEach((response) => {
+    if (response.status === 200) {
+      succeeded.push(response.statusText);
+    } else if (response.constructor === Error) {
+      failed.push(response.config.data);
+    }
+  });
+  console.log(failed.length, succeeded.length);
 }
 
 // Step 1) Get command line arguments.
@@ -56,134 +130,10 @@ getCommandLineArguments()
   .then(args => args)
   // Step 2) Parse CSV.
   .then(args => parseCSV(args))
-  // Step 3) Create requests
+  // Step 3) Create and resolve requests (Make the network calls)
   .then(postParseObject => createRequests(postParseObject))
-  .catch(e => console.error(e.message));
+  // Step 4) Capture errors and create CSV with failures
+  .then(responseArray => reportSuccessAndCreateCSV(responseArray))
+  .then(response => console.log('response', response))
+  .catch(e => console.error(e));
 
-// const InviteProcess = {
-//   csrf: '',
-//   sessid: '',
-//   testmode: false,
-// };
-
-// InviteProcess.sendInviteRequest = (dataObj, callback) => {
-//   const sendData = Object.assign({}, dataObj);
-//   const targetUrl = (InviteProcess.testmode) ?
-//     `http://localhost:9991?onboardingId=${dataObj.onboardingId}`
-//     :
-//     `https://sandbox.tradeshift.com/appRuntime/proxy/actions/manager/createandinvite?onboardingId=${dataObj.onboardingId}`;
-
-//   const requestConfig = {
-//     headers: {
-//       host: 'sandbox.tradeshift.com',
-//       'User-Agent': 'DDMagicScript/1.0',
-//       'Content-Type': 'application/json',
-//       Accept: 'text/plain',
-//       'accept-language': 'en-GB,en-US;q=0.8,en;q=0.5,da;q=0.3',
-//       'X-Tradeshift-Remote-Component-ID': 'TradeshiftDD.DDManager.Main 1.0.0-848876f682f9f0ad966083b445c32907',
-//       'X-Tradeshift-Remote-HTTP-Method': 'post',
-//       'X-Tradeshift-Remote-Service-Key': 'provider',
-//       'X-Requested-With': 'XMLHttpRequest',
-//       Referer: 'https://sandbox.tradeshift.com/ts3/frame/1095761275',
-//       Cookie: `TSAPPID=90769707; test=1; csrfToken=${dataObj.Csrf}; JSESSIONID=${dataObj.SessionId};`,
-//       DNT: '1',
-//       Connection: 'keep-alive',
-//     },
-//   };
-
-//   if (!sendData.deleted) {
-//     sendData.deleted = 'false';
-//   }
-//   if (!sendData.status) {
-//     sendData.status = 'DRAFT';
-//   }
-//   if (!sendData.fromEmail) {
-//     sendData.fromEmail = 'no-reply';
-//   }
-//   if (!sendData.skipContractReview) {
-//     sendData.skipContractReview = 'false';
-//   }
-//   if (!sendData.programIds) {
-//     sendData.programIds = [];
-//   }
-//   if (sendData.ProgramId) {
-//     sendData.programIds = [sendData.ProgramId];
-//   }
-//   if (!sendData.properties) {
-//     sendData.properties = {};
-//   }
-
-//   sendData.supplierCompanyAccountId = sendData.SupplierUUID;
-
-//   delete sendData.id;
-//   delete sendData.Csrf;
-//   delete sendData.SessionId;
-//   delete sendData.onboardingId;
-//   delete sendData.ProgramId;
-//   delete sendData.SupplierUUID;
-
-//   axios.post(targetUrl, sendData, requestConfig)
-//     .then((response) => {
-//       // console.log(response);
-//       callback(response);
-//     })
-//     .catch((error) => {
-//       callback(null, error);
-//     });
-// };
-
-// InviteProcess.onRequestSuccess = (data, err) => {
-//   if (err) {
-//     console.log('ERROR!');
-//   } else {
-//     console.log('SUCCESS');
-//   }
-// };
-
-// InviteProcess.createRequestFromRow = (rowObj, csrf, sessid) => {
-//   console.log('createRequestFromRow - Process rowObj');
-//   const objCopy = Object.assign({}, rowObj);
-
-
-//   if (rowObj.SupplierUUID) {
-//     console.log('send request...');
-//     objCopy.onboardingId = uuidv4();
-//     objCopy.Csrf = this.csrf;
-//     objCopy.SessionId = this.sessid;
-//     this.sendInviteRequest(objCopy, this.onRequestSuccess);
-//   }
-// };
-
-// InviteProcess.loadAndRunCSVLoop = (csvpath, csrf, sessid) => {
-//   this.csrf = csrf;
-//   this.sessid = sessid;
-//   console.log(`loadAndRunCSVLoop - Process file: ${csvpath}`);
-//   if (csvpath.includes('csv')) {
-//     console.log(`Read csv: ${csvpath}`);
-//     fs.readFile(`./${csvpath}`, 'utf-8', (err, data) => {
-//       if (err) {
-//         console.log(err);
-//       } else {
-//         const parsedData = Papa.parse(data, { header: true });
-//         console.log(parsedData);
-//       }
-//     });
-//   }
-// };
-
-
-// InviteProcess.runBulkInvites = () => {
-//   console.log('Begin sending bulk invitation requests to server.');
-//   console.log(`Csrf: ${process.argv[3]}`);
-//   console.log(`session: ${process.argv[4]}`);
-
-//   if (!process.argv[2] || !process.argv[3] || !process.argv[4]) {
-//     console.log('Usage: node index [fileName].csv Csrf SessionId');
-//   } else {
-//     console.log(`Load and parse ${process.argv[2]}`);
-
-//     this.loadAndRunCSVLoop(process.argv[2], process.argv[3], process.argv[4]);
-//   }
-// };
-
-// InviteProcess.runBulkInvites();
