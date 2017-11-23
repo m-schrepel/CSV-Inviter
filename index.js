@@ -119,10 +119,43 @@ function reportSuccessAndCreateCSV(responseArray) {
     if (response.status === 200) {
       succeeded.push(response.statusText);
     } else if (response.constructor === Error) {
-      failed.push(response.config.data);
+      failed.push(JSON.parse(response.config.data));
     }
   });
-  console.log(failed.length, succeeded.length);
+
+  const reWriteObject = failed.map(fail => ({
+    SupplierUUID: fail.supplierCompanyAccountId,
+    supplierEmail: fail.supplierEmail,
+    ProgramId: fail.programIds[0],
+    fundingRate: fail.fundingRate,
+    settlementPeriod: fail.settlementPeriod,
+  }));
+
+  return new Promise((resolve, reject) => {
+    const fileDateString = `${new Date().toISOString()}`;
+    let resolveString = '';
+    if (failed.length > 0 && succeeded.length > 0) {
+      resolveString += `
+        ${succeeded.length} onboarding requests succeded!
+        ${failed.length} onboarding requests failed :(
+
+      `;
+    }
+    if (failed.length > 0) {
+      fs.writeFile(`./${fileDateString}-failed.csv`, Papa.unparse(reWriteObject), (err) => {
+        if (err) {
+          return reject(new Error(`There was an error creating the file of failed requests. Logging them out for copy and paste:
+          ${JSON.stringify(reWriteObject, null, 2)}`));
+        }
+      });
+      resolveString += `${failed.length} onboarding creation requests failed so we wrote file with name: ${fileDateString}-failed.csv`;
+      return true;
+    }
+    if (failed.length === 0) {
+      resolveString += `Nothing failed, ${succeeded.length} succeded! It's a miracle!`;
+    }
+    return resolve(resolveString);
+  });
 }
 
 // Step 1) Get command line arguments.
@@ -134,6 +167,6 @@ getCommandLineArguments()
   .then(postParseObject => createRequests(postParseObject))
   // Step 4) Capture errors and create CSV with failures
   .then(responseArray => reportSuccessAndCreateCSV(responseArray))
-  .then(response => console.log('response', response))
-  .catch(e => console.error(e));
+  .then(response => console.info(response))
+  .catch(e => console.error(e.message));
 
