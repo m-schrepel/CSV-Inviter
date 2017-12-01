@@ -79,7 +79,7 @@ function createRequests(postParseObject) {
     method: 'post',
     url: URL,
     data: {
-      supplierEmail: 'skw+0518sw@tradeshift.com',
+      supplierEmail: data.supplierEmail,
       // fundingRate: '22',
       // settlementPeriod: '45',
       deleted: 'false',
