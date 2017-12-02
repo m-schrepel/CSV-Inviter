@@ -79,7 +79,7 @@ function createRequests(postParseObject) {
     method: 'post',
     url: URL,
     data: {
-      supplierEmail: data.supplierEmail,
+      supplierEmail: '',
       // fundingRate: '22',
       // settlementPeriod: '45',
       deleted: 'false',
@@ -99,6 +99,7 @@ function createRequests(postParseObject) {
     // For easier debugging we'll just keep this object as a loggable thing
     const updatedConfigObject = Object.assign({}, requestConfig, {
       data: Object.assign({}, requestConfig.data, {
+        supplierEmail: data.supplierEmail,
         fundingRate: data.fundingRate,
         settlementPeriod: data.settlementPeriod,
         programIds: [data.ProgramId],
