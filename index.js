@@ -79,7 +79,7 @@ function createRequests(postParseObject) {
     method: 'post',
     url: URL,
     data: {
-      supplierEmail: '',
+      // supplierEmail: '',
       // fundingRate: '22',
       // settlementPeriod: '45',
       deleted: 'false',
@@ -120,6 +120,7 @@ function reportSuccessAndCreateCSV(responseArray) {
     if (response.status === 200) {
       succeeded.push(response.statusText);
     } else if (response.constructor === Error) {
+      console.error('Response failed with error code and text:', response.response.status, response.response.statusText, response.config.data);
       failed.push(JSON.parse(response.config.data));
     }
   });
