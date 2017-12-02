@@ -57,22 +57,22 @@ function createRequests(postParseObject) {
 
   // This defines our endpoint with a generated UUID
   const URL =
-    `https://sandbox.tradeshift.com/appRuntime/proxy/actions/manager/createandinvite?onboardingId=${uuidv4()}`;
+    `https://go.tradeshift.com/appRuntime/proxy/actions/manager/createandinvite?onboardingId=${uuidv4()}`;
 
   // This is setup for our request
   const requestConfig = {
     headers: {
-      host: 'sandbox.tradeshift.com',
+      host: 'go.tradeshift.com',
       'User-Agent': 'DDMagicScript/1.0',
       'Content-Type': 'application/json',
       Accept: 'text/plain',
       'accept-language': 'en-GB,en-US;q=0.8,en;q=0.5,da;q=0.3',
-      'X-Tradeshift-Remote-Component-ID': 'TradeshiftDD.DDManager.Main 1.0.0-848876f682f9f0ad966083b445c32907',
+      'X-Tradeshift-Remote-Component-ID': 'TradeshiftDD.DDManager.Main 1.0.0-75cb4e5d81b3ef9321fffd0004d529b6',
       'X-Tradeshift-Remote-HTTP-Method': 'post',
       'X-Tradeshift-Remote-Service-Key': 'provider',
       'X-Requested-With': 'XMLHttpRequest',
-      Referer: 'https://sandbox.tradeshift.com/ts3/frame/1095761275',
-      Cookie: `TSAPPID=73715787; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
+      Referer: 'https://go.tradeshift.com/ts3/frame/1095761275',
+      Cookie: `TSAPPID=88165981; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
       DNT: '1',
       Connection: 'keep-alive',
     },
@@ -82,10 +82,10 @@ function createRequests(postParseObject) {
       // supplierEmail: '',
       // fundingRate: '22',
       // settlementPeriod: '45',
-      deleted: 'false',
+      deleted: false,
       status: 'DRAFT',
-      fromEmail: 'no-reply',
-      skipContractReview: 'false',
+      fromEmail: '',
+      skipContractReview: false,
       // programIds: [
       // '23177f19-0ac8-4e66-b24c-5ce0e61f0eb1',
       // ],
@@ -100,8 +100,8 @@ function createRequests(postParseObject) {
     const updatedConfigObject = Object.assign({}, requestConfig, {
       data: Object.assign({}, requestConfig.data, {
         supplierEmail: data.supplierEmail,
-        fundingRate: data.fundingRate,
-        settlementPeriod: data.settlementPeriod,
+        fundingRate: +data.fundingRate,
+        settlementPeriod: +data.settlementPeriod,
         programIds: [data.ProgramId],
         supplierCompanyAccountId: data.SupplierUUID,
       }),
@@ -120,7 +120,7 @@ function reportSuccessAndCreateCSV(responseArray) {
     if (response.status === 200) {
       succeeded.push(response.statusText);
     } else if (response.constructor === Error) {
-      console.error('Response failed with error code and text:', response.response.status, response.response.statusText, response.config.data);
+      console.error('Response failed with error code and text:', response.response.status, response.response.statusText);
       failed.push(JSON.parse(response.config.data));
     }
   });
