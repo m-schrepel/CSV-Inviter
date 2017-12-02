@@ -150,7 +150,6 @@ function reportSuccessAndCreateCSV(responseArray) {
         }
       });
       resolveString += `${failed.length} onboarding creation requests failed so we wrote file with name: ${fileDateString}-failed.csv`;
-      return true;
     }
     if (failed.length === 0) {
       resolveString += `Nothing failed, ${succeeded.length} succeded! It's a miracle!`;
@@ -168,6 +167,6 @@ getCommandLineArguments()
   .then(postParseObject => createRequests(postParseObject))
   // Step 4) Capture errors and create CSV with failures
   .then(responseArray => reportSuccessAndCreateCSV(responseArray))
-  .then(response => console.info(response))
+  .then(response => console.info('response', response))
   .catch(e => console.error(e.message));
 
