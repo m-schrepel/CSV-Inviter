@@ -83,6 +83,7 @@ function createRequests(postParseObject) {
       // fundingRate: '22',
       // settlementPeriod: '45',
       deleted: false,
+      timeout: 15000,
       status: 'DRAFT',
       fromEmail: '',
       skipContractReview: false,
@@ -109,7 +110,7 @@ function createRequests(postParseObject) {
     return updatedConfigObject;
   });
 
-  return Promise.map(requestPromises, obj => axios(obj).then(s => s).catch(e => e));
+  return Promise.map(requestPromises, obj => Promise.delay(1000, axios(obj).then(s => s).catch(e => e)));
 }
 
 function reportSuccessAndCreateCSV(responseArray) {
