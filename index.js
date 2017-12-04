@@ -71,8 +71,8 @@ function createRequests(postParseObject) {
       'X-Tradeshift-Remote-HTTP-Method': 'post',
       'X-Tradeshift-Remote-Service-Key': 'provider',
       'X-Requested-With': 'XMLHttpRequest',
-      Referer: 'https://go.tradeshift.com/ts3/frame/1095761275',
-      Cookie: `TSAPPID=88165981; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
+      Referer: 'https://go.tradeshift.com',
+      Cookie: `TSAPPID=84633784; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
       DNT: '1',
       Connection: 'keep-alive',
     },
@@ -110,8 +110,8 @@ function createRequests(postParseObject) {
     return updatedConfigObject;
   });
 
-  return Promise.map(requestPromises, (obj, index) =>
-    Promise.delay(1000 * index, axios(obj).then(s => s).catch(e => e)));
+  return Promise.map(requestPromises, obj =>
+    axios(obj).then(s => s).catch(e => e), { concurrency: 1 });
 }
 
 function reportSuccessAndCreateCSV(responseArray) {
