@@ -110,7 +110,8 @@ function createRequests(postParseObject) {
     return updatedConfigObject;
   });
 
-  return Promise.map(requestPromises, (obj, index) => Promise.delay(1000 * index, axios(obj).then(s => s).catch(e => e)));
+  return Promise.map(requestPromises, (obj, index) =>
+    Promise.delay(1000 * index, axios(obj).then(s => s).catch(e => e)));
 }
 
 function reportSuccessAndCreateCSV(responseArray) {
