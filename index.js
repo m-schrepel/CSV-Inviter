@@ -110,8 +110,14 @@ function createRequests(postParseObject) {
     return updatedConfigObject;
   });
 
-  return Promise.map(requestPromises, obj =>
-    axios(obj).then(s => s).catch(e => e), { concurrency: 1 });
+  return Promise.map(requestPromises, (obj, index) => new Promise(resolve =>
+    setTimeout(() => resolve(axios(obj).then((s) => {
+      console.log(`# ${index + 1} API call resolved successfully with status: ${s.response.status}`);
+      return s;
+    }).catch((e) => {
+      console.log(`# ${index + 1} API call failed with status: ${e.response.status}`);
+      return e;
+    }), { concurrency: 1 }), 30000 * index)));
 }
 
 function reportSuccessAndCreateCSV(responseArray) {
