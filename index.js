@@ -177,5 +177,5 @@ getCommandLineArguments()
   // Step 4) Capture errors and create CSV with failures
   .then(responseArray => reportSuccessAndCreateCSV(responseArray))
   .then(response => console.info('response', response))
-  .catch(e => console.error(e.message));
+  .catch(e => console.error('\x1b[31m', e.message));
 
