@@ -112,7 +112,7 @@ function createRequests(postParseObject) {
 
   return Promise.map(requestPromises, (obj, index) => new Promise(resolve =>
     setTimeout(() => resolve(axios(obj).then((s) => {
-      console.log(`# ${index + 1} API call resolved successfully with status: ${s.response.status}`);
+      console.log(`# ${index + 1} API call resolved successfully with status: ${s.status}`);
       return s;
     }).catch((e) => {
       console.log(`# ${index + 1} API call failed with status: ${e.response.status}`);
