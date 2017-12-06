@@ -72,7 +72,7 @@ function createRequests(postParseObject) {
       'X-Tradeshift-Remote-Service-Key': 'provider',
       'X-Requested-With': 'XMLHttpRequest',
       Referer: 'https://go.tradeshift.com',
-      Cookie: `TSAPPID=84633784; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
+      Cookie: `TSAPPID=96314044; test=1; csrfToken=${csrf}; JsessionId=${sessionId};`,
       DNT: '1',
       Connection: 'keep-alive',
     },
